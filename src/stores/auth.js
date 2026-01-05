@@ -36,7 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('nurseverse_user')
     }
 
-    async function login(email, password) {
+    async function login(email, senha) {
         loading.value = true
         error.value = null
 
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
             // Tenta primeiro /auth/login, se falhar tenta /login
             // Assumindo a estrutura padrão, vou usar /login direto se o backend for simples,
             // mas o plano diz /auth/login. Vou tentar /auth/login primeiro.
-            const response = await api.post('/auth/login', { email, password })
+            const response = await api.post('/auth/login', { email, senha })
 
             const { token: accessToken, user: userData } = response.data
 
