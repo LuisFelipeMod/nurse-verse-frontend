@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 import Home from '@/views/Home.vue'
+import Login from '@/views/Login.vue'
 import Protocolos from '@/views/Protocolos.vue'
 import Roteiros from '@/views/Roteiros.vue'
 import Upload from '@/views/Upload.vue'
@@ -9,11 +11,30 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: {
+        title: 'Login - NurseVerse',
+        guest: true
+      }
+    },
+    {
       path: '/',
       name: 'home',
       component: Home,
       meta: {
-        title: 'Dashboard - NurseVerse'
+        title: 'Dashboard - NurseVerse',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: Home,
+      meta: {
+        title: 'Dashboard - NurseVerse',
+        requiresAuth: true
       }
     },
     {
@@ -21,7 +42,8 @@ const router = createRouter({
       name: 'protocolos',
       component: Protocolos,
       meta: {
-        title: 'Protocolos - NurseVerse'
+        title: 'Protocolos - NurseVerse',
+        requiresAuth: true
       }
     },
     {
@@ -29,7 +51,8 @@ const router = createRouter({
       name: 'roteiros',
       component: Roteiros,
       meta: {
-        title: 'Roteiros - NurseVerse'
+        title: 'Roteiros - NurseVerse',
+        requiresAuth: true
       }
     },
     {
@@ -37,7 +60,8 @@ const router = createRouter({
       name: 'upload',
       component: Upload,
       meta: {
-        title: 'Upload de Documentos - NurseVerse'
+        title: 'Upload de Documentos - NurseVerse',
+        requiresAuth: true
       }
     },
     {
@@ -45,16 +69,31 @@ const router = createRouter({
       name: 'anotacoes',
       component: Anotacoes,
       meta: {
-        title: 'Anotações - NurseVerse'
+        title: 'Anotações - NurseVerse',
+        requiresAuth: true
       }
     }
   ]
 })
 
-// Atualizar título da página
-router.beforeEach((to, from, next) => {
+// Navigation Guard
+router.beforeEach(async (to, from, next) => {
+  // Atualizar título
   document.title = to.meta.title || 'NurseVerse'
-  next()
+
+  const authStore = useAuthStore()
+
+  // Verificar se precisa de autenticação
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  }
+  // Verificar se é rota de convidado (login) e usuário já está logado
+  else if (to.meta.guest && authStore.isAuthenticated) {
+    next({ name: 'home' })
+  }
+  else {
+    next()
+  }
 })
 
 export default router
