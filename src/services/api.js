@@ -3,9 +3,18 @@ import { useToast } from 'vue-toastification'
 
 const toast = useToast()
 
+// Helper para garantir que a URL tem protocolo
+const getBaseUrl = () => {
+  let url = import.meta.env.VITE_API_URL || '/api'
+  if (url !== '/api' && !url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `https://${url}`
+  }
+  return url
+}
+
 // Criar instância do axios
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: getBaseUrl(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
