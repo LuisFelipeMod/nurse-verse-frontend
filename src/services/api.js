@@ -5,7 +5,7 @@ const toast = useToast()
 
 // Criar instância do axios
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
@@ -34,19 +34,19 @@ api.interceptors.response.use(
   },
   (error) => {
     const message = error.response?.data?.error || error.message || 'Erro desconhecido'
-    
+
     // Mostrar toast de erro
     if (error.response?.status !== 404) { // Não mostrar toast para 404
       toast.error(message)
     }
-    
+
     // Tratar erros específicos
     if (error.response?.status === 401) {
       // Token expirado ou inválido
       localStorage.removeItem('nurseverse_token')
       window.location.href = '/login'
     }
-    
+
     return Promise.reject(error)
   }
 )
